@@ -12,6 +12,8 @@ public class Lexer {
     private InputStream mStream;
     private char c = END;
 
+    long mLine;
+
     private HashMap<String, Token> mReverts = new HashMap<String, Token>();
 
     public Lexer(InputStream stream) {
@@ -79,6 +81,9 @@ public class Lexer {
     public Token scan() {
         read();
         while (c == ' ' || c == '\t' || c == '\n') {
+            if (c == '\n') {
+                mLine++;
+            }
             read();
         }
         if (c == END) return null;
