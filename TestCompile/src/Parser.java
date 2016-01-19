@@ -6,6 +6,7 @@ public class Parser {
     private Token mLook;
     public Parser(Lexer lexer) {
         mLexer = lexer;
+        move();
     }
 
     private void move() {
@@ -39,6 +40,7 @@ public class Parser {
         while (mLook.mTag == Tag.BASIC) {
             Type type = type();
             Token c = mLook;
+            move();
             match(Tag.ID);
             match(';');
         }
@@ -70,6 +72,19 @@ public class Parser {
         return new Seq(stmt(), stmts());
     }
 
+    Stmt assign() {
+        Stmt stmt = null;
+        if (mLook.mTag == Tag.ID) {
+            Id id = new Id((Word)mLook, null);
+            move();
+            match('=');
+            Expr expr = bool();
+            match(';');
+            stmt = new Assign(id, expr);
+        }
+        return stmt;
+    }
+
     private Stmt stmt() {
         Expr expr;
         Stmt s, s1, s2;
@@ -93,6 +108,7 @@ public class Parser {
                     return new Else(expr, s, s1);
                 }
             case Tag.WHILE:
+                match(Tag.WHILE);
                 match('(');
                 expr = bool();
                 match(')');
@@ -112,14 +128,118 @@ public class Parser {
         }
     }
 
-    Expr assign() {
-        match(Tag.ID);
-        match('=');
-        Stmt expr = stmt();
-    }
+
 
     Expr bool() {
-
+        Expr e1 = equal();
+        while (mLook.mTag == Tag.AND || mLook.mTag == Tag.OR) {
+            Token token = mLook;
+            move();
+            e1 = new And(token, e1, equal());
+        }
+        return e1;
     }
 
+    Expr equal() {
+        Expr e1 = rel();
+        switch (mLook.mTag) {
+            case Tag.EQ:
+            case Tag.NE:
+                Token token = mLook;
+                move();
+                Expr e2 = rel();
+                return new Equal(token, e1, e2);
+        }
+        return e1;
+    }
+
+    Expr rel() {
+        Expr e1 = add();
+        switch (mLook.mTag) {
+            case '>':
+            case '<':
+            case Tag.LE:
+            case Tag.GE:
+                Token token = mLook;
+                move();
+                Expr e2 = add();
+                return new Rel(token, e1, e2);
+        }
+        return e1;
+    }
+
+    Expr add() {
+        Expr e1 = mul();
+        while (mLook.mTag == '+' || mLook.mTag == '-') {
+            Token tag = mLook;
+            move();
+            e1 = new Arith(tag, e1, mul());
+        }
+        return e1;
+    }
+
+    Expr mul() {
+        Expr e1 = not();
+        while (mLook.mTag == '*' || mLook.mTag == '/') {
+            Token tag = mLook;
+            move();
+            e1 = new Arith(tag, e1, not());
+        }
+        return e1;
+    }
+
+    Expr not() {
+        if (mLook.mTag == '~' || mLook.mTag == '!') {
+            Token token = mLook;
+            move();
+            return new Not(token, not());
+        }
+        return minus();
+    }
+
+    Expr minus() {
+        if (mLook.mTag == '-') {
+            Token token = mLook;
+            move();
+            Expr expr = factor();
+            return new Minus(token, expr, expr);
+        }
+        return factor();
+    }
+
+    Expr factor() {
+        Expr x = null;
+        switch (mLook.mTag) {
+            case '(':
+                move();
+                x = bool();
+                match(')');
+                return x;
+            case Tag.NUM:
+                Num num = (Num) mLook;
+                x = new Constant(num.mValue);
+                move();
+                return x;
+            case Tag.REAL:
+                x = new Constant(mLook, Type.FLOAT);
+                move();
+                return x;
+            case Tag.TRUE:
+                x = Constant.TRUE;
+                move();
+                return x;
+            case Tag.FALSE:
+                x = Constant.FALSE;
+                move();
+                return x;
+            case Tag.ID:
+                Word word = (Word)mLook;
+                x = new Id(word, null);
+                move();
+                return x;
+            default:
+                error("syntax error");
+        }
+        return null;
+    }
 }

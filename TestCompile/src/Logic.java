@@ -12,4 +12,9 @@ public class Logic extends Expr{
         mE1 = e1;
         mE2 = e2;
     }
+
+    @Override
+    public String toString() {
+        return mE1 + " "+ mOp+" "+mE2;
+    }
 }

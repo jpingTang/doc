@@ -140,8 +140,14 @@ public class Lexer {
             } else {
                 read();
                 float f = 0;
+                int factor = 0;
                 while (Character.isDigit(c)) {
-                    f = Character.digit(c, 10) / 10f + f;
+                    int m = factor++;
+                    float f2 = Character.digit(c, 10);
+                    while (m-- >= 0) {
+                        f2 /= 10f;
+                    }
+                    f += f2;
                     read();
                 }
                 back();

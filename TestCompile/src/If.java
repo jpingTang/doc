@@ -8,5 +8,6 @@ public class If extends Stmt {
     public If(Expr expr, Stmt stmt) {
         mExpr = expr;
         mStmt = stmt;
+        System.out.println("if "+expr+" "+stmt);
     }
 }

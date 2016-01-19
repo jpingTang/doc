@@ -10,6 +10,6 @@ public class Type extends Word{
 
     public static final Type INT = new Type(Tag.BASIC, "int", 4);
     public static final Type CHAR = new Type(Tag.BASIC, "char", 1);
-    public static final Type BOOLEAN = new Type(Tag.BASIC, "boolean", 1);
+    public static final Type BOOLEAN = new Type(Tag.BASIC, "bool", 1);
     public static final Type FLOAT = new Type(Tag.BASIC, "float", 4);
 }
