@@ -10,10 +10,10 @@ public class Main {
 //                "expr2.t",
 //                "expr3.t",
 //                "jump1.t",
-                "prog1.t",
+                "test1.t",
         };
         for (int i = 0; i < testfiles.length; i++) {
-            FileInputStream fs = new FileInputStream("D:\\tests\\"+testfiles[i]);
+            FileInputStream fs = new FileInputStream("src/test/"+testfiles[i]);
             BufferedReader br = new BufferedReader(new InputStreamReader(fs));
             String input = null;
             StringBuilder sb = new StringBuilder();
